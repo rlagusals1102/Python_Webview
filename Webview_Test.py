@@ -95,9 +95,10 @@ class MainWindow(QMainWindow):
         toolbar = QToolBar('Toolbar')
         self.addToolBar(toolbar)
         load_action = QAction(QIcon('load.png'), 'Load', self)
-        load_action.setShortcut('Ctrl+L')
+        load_action.setShortcut
         load_action.triggered.connect(self.load_url)
         toolbar.addAction(load_action)
+
         reload_action = QAction(QIcon('reload.png'), 'Reload', self)
         reload_action.setShortcut('Ctrl+R')
         reload_action.triggered.connect(self.reload_page)
@@ -124,4 +125,3 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = MainWindow()
     sys.exit(app.exec_())
-
