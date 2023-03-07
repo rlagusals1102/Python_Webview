@@ -20,6 +20,7 @@ class WebPage(QMainWindow):
 
         # 웹 페이지 뷰어
         self.web_view = QWebEngineView(self)
+        self.web_view.load(QUrl('https://www.google.com/?hl=ko'))
 
         # URL 입력 필드
         self.url_input = QLineEdit()
@@ -47,6 +48,7 @@ class WebPage(QMainWindow):
         self.setCentralWidget(widget)
 
         self.show()
+
 
     def load_url(self):
         url = self.url_input.text()
