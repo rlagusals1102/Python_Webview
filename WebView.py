@@ -1,8 +1,9 @@
 import sys
 from PyQt5.QtCore import QUrl
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QMainWindow, QToolBar, QAction, QLineEdit, QVBoxLayout, QHBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QToolBar, QAction, QLineEdit, QVBoxLayout, QHBoxLayout, QWidget, QPushButton
 from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5 import QtCore
 
 class WebPage(QMainWindow):
     def __init__(self):
@@ -28,12 +29,33 @@ class WebPage(QMainWindow):
         self.url_input.setFixedHeight(30)
 
         # 로드 버튼
-        self.load_button = QAction(QIcon('load.png'), 'Load', self)
-        self.load_button.triggered.connect(self.load_url)
-        self.load_button.setShortcut('Ctrl+L')
-        self.load_button.setStatusTip('Load URL')
+        self.load_button = QPushButton('Load', self)
+        self.load_button.setStyleSheet('''
+            QPushButton {
+                border: none;
+                background-color: transparent;
+            }
+            QPushButton:hover {
+                background-color: #F5F5F5;
+            }
+        ''')
+        self.load_button.clicked.connect(self.load_url)
         toolbar = QToolBar('Load')
-        toolbar.addAction(self.load_button)
+        toolbar.addWidget(self.load_button)
+
+        # 새 창 버튼
+        self.new_window_button = QPushButton('New Window', self)
+        self.new_window_button.setStyleSheet('''
+            QPushButton {
+                border: none;
+                background-color: transparent;
+            }
+            QPushButton:hover {
+                background-color: #F5F5F5;
+            }
+        ''')
+        self.new_window_button.clicked.connect(self.new_window)
+        toolbar.addWidget(self.new_window_button)
 
         # 전체 레이아웃
         vbox = QVBoxLayout()
@@ -49,11 +71,19 @@ class WebPage(QMainWindow):
 
         self.show()
 
-
     def load_url(self):
         url = self.url_input.text()
         self.web_view.load(QUrl(url))
 
+    def keyPressEvent(self, event):
+        if event.modifiers() == QtCore.Qt.ControlModifier and event.key() == QtCore.Qt.Key_R:
+            self.web_view.reload()
+        else:
+            super().keyPressEvent(event)
+
+    def new_window(self):
+        new_window = WebPage()
+        new_window.show()
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
