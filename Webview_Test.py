@@ -5,7 +5,8 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QToolBar, QAction, QLineE
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5 import QtCore
 
-class WebPage(QMdiSubWindow):
+
+class WebPage(QMainWindow):
     def __init__(self):
         super().__init__()
         self.title = 'Web Page Viewer'
@@ -53,22 +54,20 @@ class WebPage(QMdiSubWindow):
 
         widget = QWidget()
         widget.setLayout(vbox)
-        self.setWidget(widget)
+        self.setCentralWidget(widget)
+
+        self.show()
 
     def load_url(self):
         url = self.url_input.text()
         self.web_view.load(QUrl(url))
 
-    def keyPressEvent(self, event):
-        if event.modifiers() == QtCore.Qt.ControlModifier and event.key() == QtCore.Qt.Key_R:
-            self.web_view.reload()
-        else:
-            super().keyPressEvent(event)
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.title = 'Web Page Viewer'
+
+        self.title = 'Web Browser'
         self.left = 100
         self.top = 100
         self.width = 800
@@ -79,32 +78,39 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        # MDI 창 영역
-        self.mdi_area = QMdiArea(self)
+        # 다중 창 레이아웃
+        self.mdi_area = QMdiArea()
         self.setCentralWidget(self.mdi_area)
 
-        # 메뉴바
-        menubar = self.menuBar()
-        file_menu = menubar.addMenu('File')
-        new_action = QAction('New', self)
-        new_action.setShortcut('Ctrl+N')
-        new_action.triggered.connect(self.new_window)
-        file_menu.addAction(new_action)
+        # 새 창 열기 버튼
+        new_window_action = QAction(QIcon('new_window.png'), 'New Window', self)
+        new_window_action.setShortcut('Ctrl+N')
+        new_window_action.triggered.connect(self.new_window)
+        toolbar = self.addToolBar('New Window')
+        toolbar.addAction(new_window_action)
 
-        # 툴바
-        toolbar = QToolBar('Toolbar')
-        self.addToolBar(toolbar)
+        # 로드 버튼
         load_action = QAction(QIcon('load.png'), 'Load', self)
-        load_action.setShortcut
+        load_action.setShortcut('Ctrl+L')
         load_action.triggered.connect(self.load_url)
+        toolbar = self.addToolBar('Load')
         toolbar.addAction(load_action)
 
+        # 리로드 버튼
         reload_action = QAction(QIcon('reload.png'), 'Reload', self)
         reload_action.setShortcut('Ctrl+R')
         reload_action.triggered.connect(self.reload_page)
         toolbar.addAction(reload_action)
 
         self.show()
+    
+    def new_window(self):
+        sub_window = QMdiSubWindow()
+        sub_window.setWidget(WebPage())
+        sub_window.setWindowTitle('New Window')
+        sub_window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.mdi_area.addSubWindow(sub_window)
+        sub_window.show()
 
     def load_url(self):
         active_window = self.mdi_area.activeSubWindow()
@@ -116,12 +122,15 @@ class MainWindow(QMainWindow):
         if active_window:
             active_window.widget().web_view.reload()
 
-    def new_window(self):
-        new_window = WebPage()
-        self.mdi_area.addSubWindow(new_window)
-        new_window.show()
+    def keyPressEvent(self, event):
+        if event.modifiers() == QtCore.Qt.ControlModifier and event.key() == QtCore.Qt.Key_R:
+            self.reload_page()
+        else:
+            super().keyPressEvent(event)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = MainWindow()
     sys.exit(app.exec_())
+
